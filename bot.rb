@@ -30,5 +30,21 @@ bot.command(:partnership) do |event|
   end
 end
 
+bot.command(:mixer) do |event|
+  mixerdata = JSON.parse(RestClient.get('https://mixer.com/api/v1/channels/yourmcadmin'))
+  streaming = if mixerdata['online'] == true
+                '**Currently Live!** Come watch: http://mixer.com/yourmcadmin'
+              else
+                '**Currently Offline!**'
+              end
+  bot.channel(event.channel.id.to_s).send_embed do |e|
+    e.title = 'YourMCAdmin\'s Mixer Stats'
+    e.thumbnail = { url: 'https://uploads.mixer.com/avatar/93g5yofk-25259.jpg'.to_s }
+
+    e.description = [streaming, "**Followers**: #{mixerdata['numFollowers']}", "**Total Views**: #{mixerdata['viewersTotal']}"].join("\n")
+    e.color = '1FBAED'
+  end
+end
+
 puts 'Bot is ready!'
 bot.run
