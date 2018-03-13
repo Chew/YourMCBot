@@ -19,5 +19,16 @@ bot.ready do |event|
   event.bot.game = 'on DieHard, of course'
 end
 
+bot.command(:partnership) do |event|
+  subs = JSON.parse(RestClient.get("https://www.googleapis.com/youtube/v3/channels?part=statistics&forUsername=yourmcadmin&key=#{CONFIG['google']}"))['items'][0]['statistics']['subscriberCount'].to_i
+  follows = JSON.parse(RestClient.get('https://mixer.com/api/v1/channels/yourmcadmin'))['numFollowers'].to_i
+  bot.channel(event.channel.id.to_s).send_embed do |e|
+    e.title = 'YourMCAdmin\'s Road to Partnership'
+
+    e.description = ['Youtube Stats', "Subs: #{subs} / 100,000 (#{100_000 - subs} to go!)", '', 'Mixer Stats:', "Followers: #{follows} / 10,000 (#{10_000 - follows} to go!)"].join("\n")
+    e.color = '00FF00'
+  end
+end
+
 puts 'Bot is ready!'
 bot.run
