@@ -43,7 +43,10 @@ bot.command(:mixer) do |event|
     e.title = 'YourMCAdmin\'s Mixer Stats'
     e.thumbnail = { url: 'https://uploads.mixer.com/avatar/93g5yofk-25259.jpg'.to_s }
 
-    e.description = [streaming, "**Followers**: #{mixerdata['numFollowers']}", "**Total Views**: #{mixerdata['viewersTotal']}"].join("\n")
+    e.add_field(name: 'Streaming Status', value: streaming, inline: false)
+    e.add_field(name: 'Followers', value: mixerdata['numFollowers'], inline: false)
+    e.add_field(name: 'Total Views', value: mixerdata['viewersTotal'], inline: false)
+
     e.color = '1FBAED'
   end
 end
@@ -53,6 +56,20 @@ bot.message(includes: 'discord.gg') do |event|
   if message.include?('discord.gg') && CONFIG['deletelinks']
     event.message.delete
     event.respond "#{event.user.mention}, discord link postings are disabled!"
+  end
+end
+
+bot.message(includes: '') do |event|
+  message = event.message.to_s
+  swears = File.readlines('swears.txt') { |line| line.split.map(&:to_s).join }
+  swears = swears[0]
+  swears.delete!("\n")
+  swears = swears.split(',')
+  swears.each do |swear|
+    if message.include?(swear)
+      event.message.delete
+      event.respond "#{event.user.mention}, please do not swear!"
+    end
   end
 end
 
