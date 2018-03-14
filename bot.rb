@@ -44,8 +44,9 @@ bot.command(:mixer) do |event|
     e.thumbnail = { url: 'https://uploads.mixer.com/avatar/93g5yofk-25259.jpg'.to_s }
 
     e.add_field(name: 'Streaming Status', value: streaming, inline: false)
-    e.add_field(name: 'Followers', value: mixerdata['numFollowers'], inline: false)
-    e.add_field(name: 'Total Views', value: mixerdata['viewersTotal'], inline: false)
+    e.add_field(name: 'Followers', value: mixerdata['numFollowers'], inline: true)
+    e.add_field(name: 'Total Views', value: mixerdata['viewersTotal'], inline: true)
+    e.add_field(name: 'Viewers Watching', value: mixerdata['viewersCurrent'], inline: true)
 
     e.color = '1FBAED'
   end
@@ -66,9 +67,17 @@ bot.message(includes: '') do |event|
   swears.delete!("\n")
   swears = swears.split(',')
   swears.each do |swear|
-    if message.include?(swear)
-      event.message.delete
-      event.respond "#{event.user.mention}, please do not swear!"
+    next unless message.include?(swear)
+    event.message.delete
+    event.respond "#{event.user.mention}, please do not swear!"
+    bot.channel(channid).send_embed do |e|
+      e.title = 'Someone just swore!'
+
+      e.add_field(name: 'Invoker', value: event.user.mention, inline: false)
+      e.add_field(name: 'Swear', value: swear, inline: false)
+      e.add_field(name: 'Message', value: message, inline: false)
+
+      e.color = 'FF0000'
     end
   end
 end
