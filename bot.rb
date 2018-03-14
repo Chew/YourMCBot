@@ -48,5 +48,13 @@ bot.command(:mixer) do |event|
   end
 end
 
+bot.message(includes: 'discord.gg') do |event|
+  message = event.message.to_s
+  if message.include?('discord.gg') && CONFIG['deletelinks']
+    event.message.delete
+    event.respond "#{event.user.mention}, discord link postings are disabled!"
+  end
+end
+
 puts 'Bot is ready!'
 bot.run
