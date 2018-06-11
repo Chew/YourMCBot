@@ -1,4 +1,4 @@
-module Mixer
+module MixerStats
   extend Discordrb::Commands::CommandContainer
 
   command(:mixer) do |event|
