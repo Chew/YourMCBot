@@ -11,6 +11,8 @@ puts 'Config loaded from file'
 
 BASEURL = 'https://api.scottybot.net/api'.freeze
 
+CHANID = CONFIG['chanid']
+
 Bot = Discordrb::Commands::CommandBot.new token: CONFIG['token'], client_id: CONFIG['client_id'], prefix: ["<@#{CONFIG['client_id']}> ", '!']
 
 puts 'Initial Startup complete, loading all commands...'
