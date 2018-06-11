@@ -32,7 +32,7 @@ puts 'Done loading plugins! Finalizing start-up'
 
 Starttime = Time.now
 
-bot.ready do |event|
+Bot.ready do |event|
   event.bot.game = 'on LegitLand, of course'
 end
 
@@ -67,4 +67,4 @@ end
 # end
 
 puts 'Bot is ready!'
-bot.run
+Bot.run
