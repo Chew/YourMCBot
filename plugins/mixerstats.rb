@@ -15,7 +15,7 @@ module MixerStats
       e.add_field(name: 'Streaming Status', value: streaming, inline: false)
       e.add_field(name: 'Followers', value: mixerdata['numFollowers'], inline: true)
       e.add_field(name: 'Total Views', value: mixerdata['viewersTotal'], inline: true)
-      e.add_field(name: 'Viewers Watching', value: mixerdata['viewersCurrent'], inline: true)
+      e.add_field(name: 'Viewers Watching', value: mixerdata['viewersCurrent'], inline: true) if mixerdata['online'] == true
 
       e.color = '1FBAED'
     end
