@@ -18,9 +18,13 @@ module Coins
 
     event.channel.send_embed do |embed|
       embed.colour = 0xd084
-      embed.description = "You have #{r['points']} points!"
+      if name.nil?
+        embed.description = "You have #{r['points']} AdminCoins!"
+      else
+        embed.description = "#{name} has #{r['points']} AdminCoins!"
+      end
 
-      embed.author = Discordrb::Webhooks::EmbedAuthor.new(name: "Coins for #{name || event.user.nickname || event.user.name}", url: "http://mixer.com/#{event.user.nickname || event.user.name}", icon_url: "https://cdn.discordapp.com/emojis/426074434743566348.png?v=1")
+      embed.author = Discordrb::Webhooks::EmbedAuthor.new(name: "AdminCoins for #{name || event.user.nickname || event.user.name}", url: "http://mixer.com/#{event.user.nickname || event.user.name}", icon_url: "https://cdn.discordapp.com/emojis/426074434743566348.png?v=1")
     end
   end
 end
