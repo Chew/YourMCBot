@@ -12,7 +12,7 @@ module MixerStats
 
     socialblade = RestClient.get("https://socialblade.com/mixer/user/#{namer}").body.split("\n")
 
-    if socialblade.join('').include?("doesn't exist as a direct match to someone on the platform.")
+    if socialblade.join('').include?("doesn't exist as a direct match to someone on the platform.") || socialblade.join('').include?('We require a minimum of 5 followers to get entered into our database.')
       folrank = 'Unknown'
       viewrank = 'Unknown'
       levelrank = 'Unknown'
@@ -36,20 +36,20 @@ module MixerStats
       e.thumbnail = { url: mixerdata['user']['avatarUrl'].to_s }
 
       e.add_field(name: 'Streaming Status', value: streaming, inline: false)
-      e.add_field(name: 'Followers', value: [
-        mixerdata['numFollowers'],
-        "Rank: #{folrank}"
-      ].join("\n"), inline: true)
-      e.add_field(name: 'Total Views', value: [
-        mixerdata['viewersTotal'],
-        "Rank: #{viewrank}"
-      ].join("\n"), inline: true)
-      e.add_field(name: 'Mixer Level', value: [
-        mixerdata['user']['level'],
-        "Rank: #{levelrank}"
-      ].join("\n"), inline: true)
+      if folrank != 'Unknown'
+        e.add_field(name: "Followers - #{mixerdata['numFollowers']}", value: "Rank: #{folrank}", inline: true)
+        e.add_field(name: "Total Views - #{mixerdata['viewersTotal']}", value: "Rank: #{viewrank}", inline: true)
+        e.add_field(name: "Mixer Level - #{mixerdata['user']['level']}", value: "Rank: #{levelrank}", inline: true)
+      else
+        e.add_field(name: 'Followers', value: mixerdata['numFollowers'], inline: true)
+        e.add_field(name: 'Total Views', value: mixerdata['viewersTotal'], inline: true)
+        e.add_field(name: 'Total Views', value: mixerdata['user']['level'], inline: true)
+      end
+
       e.add_field(name: 'Sparks', value: mixerdata['user']['sparks'], inline: true)
       e.add_field(name: 'Viewers Watching', value: mixerdata['viewersCurrent'], inline: true) if mixerdata['online'] == true
+
+      e.footer = Discordrb::Webhooks::EmbedFooter.new(text: 'Rank Stats provided by my boi socialblade') if folrank != 'Unknown'
 
       e.color = '1FBAED'
     end
