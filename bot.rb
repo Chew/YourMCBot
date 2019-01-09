@@ -4,6 +4,7 @@ require 'json'
 require 'yaml'
 require 'nokogiri'
 require 'open-uri'
+require 'mysql2'
 puts 'All dependencies loaded'
 
 CONFIG = YAML.load_file('config.yaml')
@@ -13,9 +14,28 @@ BASEURL = 'https://api.scottybot.net/api'.freeze
 
 CHANID = CONFIG['chanid']
 
+begin
+  DB = Mysql2::Client.new(
+    host: CONFIG['db']['host'],
+    username: CONFIG['db']['username'],
+    password: CONFIG['db']['password'],
+    database: CONFIG['db']['database'],
+    reconnect: true
+  )
+  puts 'Connected to database'
+rescue Mysql2::Error::ConnectionError
+  puts 'Unable to connect to the database. Good going!'
+  exit
+end
+
 Bot = Discordrb::Commands::CommandBot.new token: CONFIG['token'], client_id: CONFIG['client_id'], prefix: ["<@#{CONFIG['client_id']}> ", '!']
 
 puts 'Initial Startup complete, loading all commands...'
+
+require_relative 'extensions/dbgeek'
+require_relative 'extensions/botuser'
+
+DBHelper = DbGeek.new
 
 def loadpls
   Bot.clear!
