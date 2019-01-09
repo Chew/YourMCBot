@@ -1,16 +1,23 @@
 module MixerStats
   extend Discordrb::Commands::CommandContainer
 
-  command(:mixer, max_args: 1) do |event, name = nil|
-    namer = name || event.user.nickname || event.user.name
+  command(:mixer, max_args: 1) do |event, *namearg|
+    name = namearg.join(' ') unless namearg.length.zero?
+    user = BotUser.new(event.user.id)
+    if user.exists? && namearg.length.zero?
+      profile = user
+      name = profile.mixer
+    elsif namearg.length.zero?
+      name = event.user.display_name
+    end
 
     begin
-      mixerdata = JSON.parse(RestClient.get("https://mixer.com/api/v1/channels/#{namer}"))
+      mixerdata = JSON.parse(RestClient.get("https://mixer.com/api/v1/channels/#{name}"))
     rescue RestClient::NotFound
       event.respond "Your nickname doesn't exist on Mixer! Please supply a username or change your nickname to match your mixer name!"
     end
 
-    socialblade = RestClient.get("https://socialblade.com/mixer/user/#{namer}").body.split("\n")
+    socialblade = RestClient.get("https://socialblade.com/mixer/user/#{name}").body.split("\n")
 
     if socialblade.join('').include?("doesn't exist as a direct match to someone on the platform.") || socialblade.join('').include?('We require a minimum of 5 followers to get entered into our database.')
       folrank = 'Unknown'
@@ -27,12 +34,12 @@ module MixerStats
     end
 
     streaming = if mixerdata['online'] == true
-                  "**Currently Live!** Come watch: http://mixer.com/#{namer}"
+                  "**Currently Live!** Come watch: http://mixer.com/#{name}"
                 else
                   '**Currently Offline!**'
                 end
     event.channel.send_embed do |e|
-      e.title = "#{namer}'s Mixer Stats"
+      e.title = "#{name}'s Mixer Stats"
       e.thumbnail = { url: mixerdata['user']['avatarUrl'].to_s }
 
       e.add_field(name: 'Streaming Status', value: streaming, inline: false)
@@ -49,7 +56,7 @@ module MixerStats
       e.add_field(name: 'Sparks', value: mixerdata['user']['sparks'], inline: true)
       e.add_field(name: 'Viewers Watching', value: mixerdata['viewersCurrent'], inline: true) if mixerdata['online'] == true
 
-      e.footer = Discordrb::Webhooks::EmbedFooter.new(text: 'Rank Stats provided by my boi socialblade') if folrank != 'Unknown'
+      e.footer = Discordrb::Webhooks::EmbedFooter.new(text: 'Rank Stats provided by SocialBlade') if folrank != 'Unknown'
 
       e.color = '1FBAED'
     end

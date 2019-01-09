@@ -1,9 +1,18 @@
 module Coins
   extend Discordrb::Commands::CommandContainer
 
-  command(:coins, max_args: 1) do |event, name = nil|
+  command(:coins, max_args: 1) do |event, *namearg|
+    name = namearg.join(' ') unless namearg.length.zero?
+    user = BotUser.new(event.user.id)
+    if user.exists? && namearg.length.zero?
+      profile = user
+      name = profile.mixer
+    elsif namearg.length.zero?
+      name = event.user.display_name
+    end
+
     begin
-      mixerid = JSON.parse(RestClient.get("https://mixer.com/api/v1/channels/#{name || event.user.nickname || event.user.name}"))['userId']
+      mixerid = JSON.parse(RestClient.get("https://mixer.com/api/v1/channels/#{name}"))['userId']
     rescue RestClient::NotFound
       event.respond "Your nickname doesn't exist on Mixer! Please supply a username or change your nickname to match your mixer name!"
     end
@@ -18,13 +27,13 @@ module Coins
 
     event.channel.send_embed do |embed|
       embed.colour = 0xd084
-      if name.nil?
-        embed.description = "You have #{r['points']} AdminCoins!"
-      else
-        embed.description = "#{name} has #{r['points']} AdminCoins!"
-      end
+      embed.description = if namearg.length.zero?
+                            "You have #{r['points']} AdminCoins!"
+                          else
+                            "#{name} has #{r['points']} AdminCoins!"
+                          end
 
-      embed.author = Discordrb::Webhooks::EmbedAuthor.new(name: "AdminCoins for #{name || event.user.nickname || event.user.name}", url: "http://mixer.com/#{event.user.nickname || event.user.name}", icon_url: "https://cdn.discordapp.com/emojis/426074434743566348.png?v=1")
+      embed.author = Discordrb::Webhooks::EmbedAuthor.new(name: "AdminCoins for #{name}", url: "http://mixer.com/#{name}", icon_url: 'https://cdn.discordapp.com/emojis/426074434743566348.png?v=1')
     end
   end
 end
