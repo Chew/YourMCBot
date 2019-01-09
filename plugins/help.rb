@@ -2,8 +2,32 @@ module Help
   extend Discordrb::Commands::CommandContainer
 
   command(:help) do |event|
-    event.message.delete
-    event.respond event.user.mention + ', Need some help? same'
+    event.channel.send_embed do |embed|
+      embed.title = 'YourMCBot Commands'
+      embed.colour = '36399A'
+
+      embed.add_field(name: 'Basic Commands', value: [
+        '`!help` - Find bot commands',
+        '`!ping` - Ping the bot',
+        '`!feedback` - Leave feedback about the bot'
+      ].join("\n"), inline: false)
+
+      embed.add_field(name: 'Admin Commands', value: [
+        '`!coins [user]` - Find your coins!',
+        '`!mixer [user]` - Find mixer stats for a user',
+        '`!quote [id]` - Retrieve a quote from the Quotes list'
+      ].join("\n"), inline: false)
+
+      embed.add_field(name: 'Server Commands', value: [
+        '`!membercount` - Find the member counts of the server.',
+        '`!whois` - Find info about yourself.'
+      ].join("\n"), inline: false)
+
+      embed.add_field(name: 'Profile Commands', value: [
+        '`!profile` - See your bot profile',
+        '`!set mixer [name]` - Set your mixer name to use for `!coins` and more.'
+      ].join("\n"), inline: false)
+    end
   end
 
   command(%i[bug feedback suggestion error report], min_args: 1) do |event, *feedback|
