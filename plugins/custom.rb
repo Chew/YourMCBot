@@ -1,28 +1,25 @@
 module Custom
   extend Discordrb::Commands::CommandContainer
 
-  command(%i[yt youtube]) do |event|
-    event.message.delete
-    event.respond event.user.mention + ', Subscribe to my YouTube channel: <http://youtube.com/YourMCAdmin>'
-  end
+  begin
+    r = JSON.parse(RestClient.get("#{BASEURL}/commands",
+                                  params: { authkey: CONFIG['api'] }))
 
-  command(:twitter) do |event|
-    event.message.delete
-    event.respond event.user.mention + ', Follow YourMCAdmin on Twitter - <https://twitter.com/YourMCAdmin>'
-  end
+    r['Commands'].each do |e|
+      next if e['cmd'] == '!coins'
 
-  command(:whatisacoin) do |event|
-    event.message.delete
-    event.respond event.user.mention + ', Admin coins can be earned by answering trivia questions correctly! At the end of each month the Coins are reset and the top players win prizes! You can see how many you have with !coins (soon)'
-  end
-
-  command(:tsk) do |event|
-    event.message.delete
-    event.respond event.user.mention + ', TSK TSK TSK!'
-  end
-
-  command(:triggered) do |event|
-    event.message.delete
-    event.respond "#{event.server.members.sample.name} is triggered!"
+      command(e['cmd'][1..-1].downcase.to_sym) do |event|
+        if e['text'].include?('(_api_')
+          event.respond 'This command makes an API call. This bot doesn\'t support that at the moment.'
+        elsif e['text'].include?('(_enterqueue_)')
+          event.respond 'This command makes you enter a queue. This command only works on the Mixer page.'
+        else
+          event.respond e['text'].gsub('@(_user_)', event.user.mention)
+        end
+      end
+      puts "Registered custom command #{e['cmd']}"
+    end
+  rescue RestClient::Unauthorized
+    event.respond 'unable to retrieve commands, custom commands are a goner!'
   end
 end
