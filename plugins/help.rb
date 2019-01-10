@@ -12,10 +12,11 @@ module Help
         '`!feedback` - Leave feedback about the bot'
       ].join("\n"), inline: false)
 
-      embed.add_field(name: 'Admin Commands', value: [
+      embed.add_field(name: 'Utility Commands', value: [
         '`!coins [user]` - Find your coins!',
         '`!mixer [user]` - Find mixer stats for a user',
-        '`!quote [id]` - Retrieve a quote from the Quotes list'
+        '`!quote [id]` - Retrieve a quote from the Quotes list',
+        '`!followage` - Find your followage!'
       ].join("\n"), inline: false)
 
       embed.add_field(name: 'Server Commands', value: [
